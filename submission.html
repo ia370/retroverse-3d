@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Submission — RetroVerse 3D</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="rv-header">
+    <div class="container-fluid d-flex align-items-center justify-content-between flex-wrap py-2">
+      <a href="index.html" class="rv-logo"><span class="rv-logo-r">R</span><span class="rv-logo-v">V</span><span class="rv-logo-text">RetroVerse <em>3D</em></span></a>
+      <p class="rv-strapline mb-0 d-none d-md-block">Three classic Nintendo consoles. One interactive gallery.</p>
+      <nav class="navbar navbar-expand-lg p-0">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="index.html">Gallery</a></li>
+            <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+            <li class="nav-item"><a class="nav-link" href="statement.html">Originality</a></li>
+            <li class="nav-item"><a class="nav-link" href="references.html">References</a></li>
+            <li class="nav-item"><a class="nav-link" href="sitemap.html">Site Map</a></li>
+            <li class="nav-item"><a class="nav-link active" aria-current="page" href="submission.html">Submission</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="rv-main container" style="max-width: 900px;">
+    <h1 class="mb-4">Assignment Submission</h1>
+
+    <section class="rv-panel mb-4">
+      <h2 class="rv-panel-title">1. Student details</h2>
+      <dl class="row mb-0">
+        <dt class="col-sm-4">Student name</dt>            <dd class="col-sm-8">[YOUR FULL NAME]</dd>
+        <dt class="col-sm-4">Student number</dt>          <dd class="col-sm-8">[STUDENT ID]</dd>
+        <dt class="col-sm-4">Module</dt>                  <dd class="col-sm-8">3D Application Development (L6)</dd>
+        <dt class="col-sm-4">Academic year</dt>           <dd class="col-sm-8">2026</dd>
+        <dt class="col-sm-4">Project title</dt>           <dd class="col-sm-8">RetroVerse 3D &mdash; Interactive Console Gallery</dd>
+      </dl>
+    </section>
+
+    <section class="rv-panel mb-4">
+      <h2 class="rv-panel-title">2. 3D App Implementation &mdash; ITS Web Server URL</h2>
+      <p class="mb-1"><a href="[YOUR ITS URL HERE]">[YOUR ITS URL HERE]</a></p>
+      <p class="small text-muted mb-0">Hosted on the university ITS web server. Tested in week&nbsp;11.</p>
+    </section>
+
+    <section class="rv-panel mb-4">
+      <h2 class="rv-panel-title">3. GitHub &mdash; 3D App Codebase URL</h2>
+      <p class="mb-1"><a href="[YOUR GITHUB CODEBASE URL HERE]">[YOUR GITHUB CODEBASE URL HERE]</a></p>
+      <p class="small text-muted mb-0">Full HTML / CSS / JavaScript / PHP / Slim source. Includes <code>README.md</code> with setup instructions.</p>
+    </section>
+
+    <section class="rv-panel mb-4">
+      <h2 class="rv-panel-title">4. GitHub &mdash; 3D Models (glTF / .blend) URL</h2>
+      <p class="mb-1"><a href="[YOUR GITHUB MODELS URL HERE]">[YOUR GITHUB MODELS URL HERE]</a></p>
+      <p class="small text-muted mb-0">Source <code>.blend</code> files for all three consoles, plus the exported <code>.glb</code> binaries and texture atlases.</p>
+    </section>
+
+    <section class="rv-panel mb-4">
+      <h2 class="rv-panel-title">5. 3D App Deeper Understanding Statement</h2>
+      <p>The implementation extends beyond the laboratory baseline in several deliberate ways:</p>
+      <ul>
+        <li><strong>Custom GLSL fresnel rim‑light shader.</strong> Implemented in <code>js/shaders/fresnel.vert</code> / <code>fresnel.frag</code> and applied to the model via a <code>THREE.ShaderMaterial</code>. The effect is toggleable from the UI.</li>
+        <li><strong>Post‑processing pipeline.</strong> A four‑pass <code>EffectComposer</code> chain &mdash; <code>RenderPass</code> &rarr; <code>UnrealBloomPass</code> &rarr; <code>FXAAShader</code> &rarr; <code>OutputPass</code>. Bloom can be turned off at runtime.</li>
+        <li><strong>PHP micro‑framework.</strong> Slim&nbsp;4 with PSR‑7 middleware, installed via Composer (<code>api/composer.json</code>). The catalogue and feedback endpoints are implemented as discrete routes.</li>
+        <li><strong>Own REST API.</strong> Four endpoints (<code>GET /models</code>, <code>GET /models/{id}</code>, <code>GET /feedback</code>, <code>POST /feedback</code>) backed by a SQLite database which is initialised on first request.</li>
+        <li><strong>JavaScript framework.</strong> Bootstrap&nbsp;5 powers the responsive fluid grid, the navbar collapse and all form components.</li>
+        <li><strong>Strict MVC separation.</strong> The front end is split into <code>model.js</code>, <code>view.js</code> and <code>controller.js</code>; the model is a publish/subscribe store and the view never decides anything.</li>
+        <li><strong>Complex N64 model.</strong> The N64 console &mdash; with its trapezoidal silhouette, expansion bay and signature controller &mdash; exceeds the laboratory complexity baseline.</li>
+        <li><strong>Accessibility.</strong> Semantic landmarks, keyboard‑reachable gallery, AAA contrast, ARIA labels, <code>prefers-reduced-motion</code> support, opt‑in audio.</li>
+      </ul>
+
+      <h3 class="h6 mt-4">Feedback from week‑11 testing &mdash; impact on the build</h3>
+      <ul class="mb-0">
+        <li>Spot‑light intensity was raised after testers reported it had no visible effect at the default value.</li>
+        <li>Bloom strength was dialled back from 1.1 to 0.55 after testers noted it overpowered the dark NES and N64 finishes.</li>
+        <li>Gallery items were made keyboard‑reachable after a screen‑reader user could not activate them with <kbd>Enter</kbd>.</li>
+        <li>The wireframe toggle was promoted to a sticky panel after mobile testers struggled to find it.</li>
+        <li>The animation button was changed from a flat spin to a sine‑bounce so the motion feels deliberate.</li>
+      </ul>
+    </section>
+
+    <section class="rv-panel mb-4">
+      <h2 class="rv-panel-title">6. Submission archive</h2>
+      <p>This submission is provided as both:</p>
+      <ul>
+        <li>A zipped folder uploaded to Canvas (<code>RetroVerse3D_[STUDENT_ID].zip</code>), and</li>
+        <li>The GitHub repositories listed in sections 3 and 4 above.</li>
+      </ul>
+      <p class="small text-muted mb-0">All work is hosted on the university ITS web server; no external ISP hosting has been used.</p>
+    </section>
+  </main>
+
+  <footer class="rv-footer">
+    <div class="container-fluid py-3 small d-flex justify-content-between flex-wrap">
+      <span>&copy; 2026 RetroVerse 3D — L6 Assignment</span>
+      <span><a href="references.html">References</a> · <a href="sitemap.html">Site map</a> · <a href="submission.html">Submission</a></span>
+    </div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

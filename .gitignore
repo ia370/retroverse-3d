@@ -1,0 +1,20 @@
+.DS_Store
+node_modules/
+api/vendor/
+api/data/*.sqlite
+api/data/*.sqlite-*
+*.log
+.idea/
+.vscode/
+
+# Blender autosaves and backups
+*.blend1
+*.blend2
+
+# Mac junk
+._*
+.Spotlight-V100
+.Trashes
+
+# Reference photos (these are large and shouldn't be committed)
+assets/source/refs/

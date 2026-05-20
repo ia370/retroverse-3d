@@ -1,0 +1,10 @@
+# Route every request to index.php (Slim front controller)
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+# Block direct access to the SQLite database
+<FilesMatch "\.(sqlite|sqlite-journal|sqlite-wal|sqlite-shm)$">
+  Require all denied
+</FilesMatch>

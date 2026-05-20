@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About — RetroVerse 3D</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="rv-header">
+    <div class="container-fluid d-flex align-items-center justify-content-between flex-wrap py-2">
+      <a href="index.html" class="rv-logo"><span class="rv-logo-r">R</span><span class="rv-logo-v">V</span><span class="rv-logo-text">RetroVerse <em>3D</em></span></a>
+      <p class="rv-strapline mb-0 d-none d-md-block">Three classic Nintendo consoles. One interactive gallery.</p>
+      <nav class="navbar navbar-expand-lg p-0">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="index.html">Gallery</a></li>
+            <li class="nav-item"><a class="nav-link active" aria-current="page" href="about.html">About</a></li>
+            <li class="nav-item"><a class="nav-link" href="statement.html">Originality</a></li>
+            <li class="nav-item"><a class="nav-link" href="references.html">References</a></li>
+            <li class="nav-item"><a class="nav-link" href="sitemap.html">Site Map</a></li>
+            <li class="nav-item"><a class="nav-link" href="submission.html">Submission</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="rv-main container" style="max-width: 900px;">
+    <h1 class="mb-4">About RetroVerse 3D</h1>
+
+    <section class="rv-panel mb-4">
+      <h2 class="rv-panel-title">Concept</h2>
+      <p>RetroVerse 3D is an interactive product‑gallery web app that presents three classic Nintendo consoles &mdash; the <strong>NES (1983)</strong>, the <strong>SNES (1990)</strong> and the <strong>Nintendo&nbsp;64 (1996)</strong> &mdash; as fully manipulable 3D objects. Visitors can browse the gallery, switch between perspective and orthographic cameras, change lighting, toggle wireframe mode, swap colour variants and trigger animations and audio.</p>
+    </section>
+
+    <section class="rv-panel mb-4">
+      <h2 class="rv-panel-title">Production process</h2>
+      <ol>
+        <li><strong>Modelling</strong> &mdash; the three consoles were modelled in <strong>Blender 4.x</strong>. Geometry was kept low‑poly where possible (target ≤&nbsp;15k tris per model) and topology was built around quads to keep subdivision and bevels clean. The N64 controller is the most complex model and required reference imagery from multiple angles.</li>
+        <li><strong>UV unwrapping &amp; texturing</strong> &mdash; each model has a single 2K base‑colour atlas plus a roughness map. Logos and labels were authored as separate decals to remain swappable.</li>
+        <li><strong>Lighting setup</strong> &mdash; an ambient fill, a directional &lsquo;key&rsquo; light and a coloured spot light reproduce a soft museum‑style display. Ambient occlusion is baked at export to deepen the cavities without an extra runtime pass.</li>
+        <li><strong>Cameras</strong> &mdash; a perspective camera (45° FOV) and an orthographic camera share the same target so the user can compare scale faithfully.</li>
+        <li><strong>Export</strong> &mdash; assets are exported as <code>.glb</code> (binary glTF&nbsp;2.0) and loaded with <code>GLTFLoader</code>. The original <code>.blend</code> sources live in <code>assets/source/</code>.</li>
+      </ol>
+    </section>
+
+    <section class="rv-panel mb-4">
+      <h2 class="rv-panel-title">Architecture &mdash; MVC</h2>
+      <p>The front end follows a strict <strong>Model&ndash;View&ndash;Controller</strong> separation:</p>
+      <ul>
+        <li><code>js/model.js</code> &mdash; <strong>Model</strong>. Owns the catalogue, current selection and the display flags. Talks to the REST API. Emits events on change; never touches the DOM or Three.js.</li>
+        <li><code>js/view.js</code> &mdash; <strong>View</strong>. Owns the Three.js scene, the renderer, the post‑processing composer and the DOM updates that depend on state. Pure presentation.</li>
+        <li><code>js/controller.js</code> &mdash; <strong>Controller</strong>. Wires DOM events to model mutations and model events to view updates. Decides nothing on its own.</li>
+        <li><code>api/index.php</code> &mdash; <strong>Server</strong>. A <strong>Slim 4</strong> micro‑framework REST API backed by <strong>SQLite</strong>. Exposes <code>GET /models</code>, <code>GET /feedback</code> and <code>POST /feedback</code>.</li>
+      </ul>
+    </section>
+
+    <section class="rv-panel mb-4">
+      <h2 class="rv-panel-title">Accessibility</h2>
+      <ul>
+        <li><strong>Semantic HTML</strong> &mdash; landmark elements (<code>header</code>, <code>nav</code>, <code>main</code>, <code>footer</code>, <code>aside</code>, <code>section</code>) and explicit headings give screen‑reader users clear structure.</li>
+        <li><strong>Keyboard support</strong> &mdash; gallery items are focusable and respond to <kbd>Enter</kbd>/<kbd>Space</kbd>; all controls are native form elements that browsers expose to assistive tech.</li>
+        <li><strong>Colour contrast</strong> &mdash; body text is ≥ 7:1 against the dark background (WCAG&nbsp;AAA). Active states use both colour <em>and</em> a border change so colour‑blind users have a non‑colour cue.</li>
+        <li><strong>ARIA labels</strong> &mdash; the canvas and decorative regions carry descriptive <code>aria-label</code> attributes; live regions announce feedback updates.</li>
+        <li><strong>Reduced motion</strong> &mdash; the CSS <code>prefers-reduced-motion</code> query strips all transitions; the JS animation button can be ignored without affecting the rest of the experience.</li>
+        <li><strong>Audio is opt‑in</strong> &mdash; sound only plays on a deliberate button press, never automatically.</li>
+      </ul>
+    </section>
+
+    <section class="rv-panel mb-4">
+      <h2 class="rv-panel-title">Testing &mdash; Week 11</h2>
+      <p>Live testing was conducted in week&nbsp;11 with five peers on the following devices:</p>
+      <ul>
+        <li>Windows 11 / Chrome 124 (1920×1080)</li>
+        <li>Windows 11 / Edge 124 (1366×768)</li>
+        <li>macOS 14 / Safari 17 (Retina, 2560×1600)</li>
+        <li>iPad 10.2 / Safari (1620×2160)</li>
+        <li>Android 14 / Chrome (Pixel 7)</li>
+      </ul>
+
+      <h3 class="h6 mt-3">Issues found and resolved</h3>
+      <table class="table table-sm table-dark mt-2">
+        <thead><tr><th>Tester finding</th><th>Change made</th></tr></thead>
+        <tbody>
+          <tr><td>Spot‑light toggle had no visible effect at default intensity.</td><td>Raised <code>SpotLight.intensity</code> from 8 → 18; widened cone to π/6.</td></tr>
+          <tr><td>Wireframe toggle was easy to miss on mobile.</td><td>Promoted the toggle into a sticky right‑hand <em>Display</em> panel, full‑width on small screens.</td></tr>
+          <tr><td>Animation button only span the model &mdash; no contextual cue.</td><td>Added a sine‑bounce on the Y‑axis so the rotation feels intentional.</td></tr>
+          <tr><td>Gallery items were not keyboard‑reachable.</td><td>Added <code>tabindex="0"</code>, <code>role="option"</code> and <kbd>Enter</kbd>/<kbd>Space</kbd> handlers.</td></tr>
+          <tr><td>Bloom was overpowering on dark consoles (NES, N64).</td><td>Lowered bloom strength from 1.1 → 0.55 and added an <em>Effects</em> toggle.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="rv-panel mb-4">
+      <h2 class="rv-panel-title">Going further &mdash; deeper understanding</h2>
+      <ul>
+        <li><strong>Custom GLSL shader</strong> &mdash; a fresnel rim‑light shader (<code>js/shaders/fresnel.*</code>) gives every model a subtle edge glow that responds to camera angle.</li>
+        <li><strong>Post‑processing pipeline</strong> &mdash; <code>EffectComposer</code> with <code>UnrealBloomPass</code> + <code>FXAAShader</code> + <code>OutputPass</code>.</li>
+        <li><strong>JavaScript framework</strong> &mdash; Bootstrap&nbsp;5 for the responsive grid and components.</li>
+        <li><strong>PHP micro‑framework</strong> &mdash; Slim&nbsp;4 with PSR‑7 routing and a custom <code>db()</code> service.</li>
+        <li><strong>SQLite</strong> &mdash; persisted feedback storage, schema initialised on first request.</li>
+        <li><strong>Own REST API</strong> &mdash; <code>/models</code> and <code>/feedback</code> endpoints designed and implemented from scratch.</li>
+        <li><strong>Complex model</strong> &mdash; the N64 controller, with its trident form‑factor and analogue stick, exceeds the laboratory complexity baseline.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="rv-footer">
+    <div class="container-fluid py-3 small d-flex justify-content-between flex-wrap">
+      <span>&copy; 2026 RetroVerse 3D — L6 Assignment</span>
+      <span><a href="references.html">References</a> · <a href="sitemap.html">Site map</a> · <a href="submission.html">Submission</a></span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

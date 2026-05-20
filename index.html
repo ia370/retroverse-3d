@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="RetroVerse 3D — an interactive Three.js gallery of the NES, SNES and Nintendo 64." />
+  <title>RetroVerse 3D — Interactive Console Gallery</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- ========================== HEADER ========================== -->
+  <header class="rv-header">
+    <div class="container-fluid d-flex align-items-center justify-content-between flex-wrap py-2">
+      <a href="index.html" class="rv-logo" aria-label="RetroVerse 3D home">
+        <span class="rv-logo-r">R</span><span class="rv-logo-v">V</span>
+        <span class="rv-logo-text">RetroVerse <em>3D</em></span>
+      </a>
+      <p class="rv-strapline mb-0 d-none d-md-block">Three classic Nintendo consoles. One interactive gallery.</p>
+
+      <nav class="navbar navbar-expand-lg p-0">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link active" aria-current="page" href="index.html">Gallery</a></li>
+            <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+            <li class="nav-item"><a class="nav-link" href="statement.html">Originality</a></li>
+            <li class="nav-item"><a class="nav-link" href="references.html">References</a></li>
+            <li class="nav-item"><a class="nav-link" href="sitemap.html">Site Map</a></li>
+            <li class="nav-item"><a class="nav-link" href="submission.html">Submission</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ========================== MAIN ========================== -->
+  <main class="container-fluid rv-main">
+    <div class="row g-3">
+
+      <!-- ===== Gallery selector (left, collapses to top on mobile) ===== -->
+      <aside class="col-12 col-lg-3 order-lg-1">
+        <section class="rv-panel" aria-labelledby="gallery-heading">
+          <h2 id="gallery-heading" class="rv-panel-title">Console gallery</h2>
+          <ul id="gallery-list" class="rv-gallery list-unstyled mb-0" role="listbox" aria-label="Choose a console">
+            <!-- populated by view.js -->
+          </ul>
+        </section>
+
+        <section class="rv-panel mt-3" aria-labelledby="info-heading">
+          <h2 id="info-heading" class="rv-panel-title">About this model</h2>
+          <h3 id="model-title" class="h5 mb-1">—</h3>
+          <p id="model-year" class="text-muted small mb-2">—</p>
+          <p id="model-description" class="mb-0 small">Select a console to begin.</p>
+        </section>
+      </aside>
+
+      <!-- ===== Stage (centre) ===== -->
+      <section class="col-12 col-lg-6 order-lg-2" aria-label="3D viewport">
+        <div class="rv-stage">
+          <canvas id="rv-canvas" aria-label="Interactive 3D model viewport. Drag to orbit, scroll to zoom."></canvas>
+
+          <!-- HUD: top-left model badge -->
+          <div class="rv-hud rv-hud-tl" aria-hidden="true">
+            <span class="rv-hud-dot"></span>
+            <span class="rv-hud-label">Now viewing</span>
+            <span id="hud-name" class="rv-hud-name">—</span>
+            <span id="hud-year" class="rv-hud-year">—</span>
+          </div>
+
+          <!-- HUD: top-right control hints -->
+          <div class="rv-hud rv-hud-tr" aria-hidden="true">
+            <span class="rv-key">Drag</span> orbit ·
+            <span class="rv-key">Scroll</span> zoom ·
+            <span class="rv-key">Right-drag</span> pan
+          </div>
+
+          <!-- Loading bar + FPS -->
+          <div class="rv-stage-overlay">
+            <div id="rv-loading" class="rv-loading" hidden>
+              <span class="rv-loading-text">Loading model…</span>
+              <div class="rv-loading-bar"><div id="rv-loading-fill"></div></div>
+            </div>
+            <span id="rv-fps" class="rv-fps" aria-hidden="true">— fps</span>
+          </div>
+
+          <!-- Animated grid floor (CSS, behind canvas) -->
+          <div class="rv-grid-bg" aria-hidden="true"></div>
+        </div>
+      </section>
+
+      <!-- ===== Controls (right) ===== -->
+      <aside class="col-12 col-lg-3 order-lg-3">
+        <section class="rv-panel" aria-labelledby="display-heading">
+          <h2 id="display-heading" class="rv-panel-title">Display</h2>
+
+          <div class="rv-control">
+            <label class="form-label small mb-1">View mode</label>
+            <div class="btn-group w-100" role="group" aria-label="View mode">
+              <button id="btn-solid"     type="button" class="btn btn-sm btn-outline-light active">Solid</button>
+              <button id="btn-wireframe" type="button" class="btn btn-sm btn-outline-light">Wireframe</button>
+            </div>
+          </div>
+
+          <div class="rv-control">
+            <label class="form-label small mb-1">Camera</label>
+            <div class="btn-group w-100" role="group" aria-label="Camera projection">
+              <button id="btn-cam-persp" type="button" class="btn btn-sm btn-outline-light active">Perspective</button>
+              <button id="btn-cam-ortho" type="button" class="btn btn-sm btn-outline-light">Orthographic</button>
+            </div>
+          </div>
+
+          <div class="rv-control">
+            <label class="form-label small mb-1">Preset view</label>
+            <div class="btn-group w-100" role="group" aria-label="Preset view">
+              <button data-preset="front" type="button" class="btn btn-sm btn-outline-light">Front</button>
+              <button data-preset="top"   type="button" class="btn btn-sm btn-outline-light">Top</button>
+              <button data-preset="iso"   type="button" class="btn btn-sm btn-outline-light active">Iso</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="rv-panel mt-3" aria-labelledby="lighting-heading">
+          <h2 id="lighting-heading" class="rv-panel-title">Lighting</h2>
+
+          <div class="rv-control form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="light-ambient" checked />
+            <label class="form-check-label small" for="light-ambient">Ambient</label>
+          </div>
+          <div class="rv-control form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="light-key" checked />
+            <label class="form-check-label small" for="light-key">Key (directional)</label>
+          </div>
+          <div class="rv-control form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="light-spot" />
+            <label class="form-check-label small" for="light-spot">Spot</label>
+          </div>
+          <div class="rv-control">
+            <label for="light-color" class="form-label small mb-1">Spot colour</label>
+            <input type="color" id="light-color" class="form-control form-control-color form-control-sm" value="#ff5577" aria-label="Spot light colour" />
+          </div>
+        </section>
+
+        <section class="rv-panel mt-3" aria-labelledby="effects-heading">
+          <h2 id="effects-heading" class="rv-panel-title">Effects</h2>
+          <div class="rv-control form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="fx-bloom" checked />
+            <label class="form-check-label small" for="fx-bloom">Bloom (post-processing)</label>
+          </div>
+          <div class="rv-control form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="fx-fresnel" checked />
+            <label class="form-check-label small" for="fx-fresnel">Fresnel rim shader (GLSL)</label>
+          </div>
+        </section>
+
+        <section class="rv-panel mt-3" aria-labelledby="actions-heading">
+          <h2 id="actions-heading" class="rv-panel-title">Actions</h2>
+          <button id="btn-animate" type="button" class="btn btn-primary btn-sm w-100 mb-2">Play animation</button>
+          <button id="btn-sound"   type="button" class="btn btn-outline-light btn-sm w-100 mb-2">Play sound</button>
+          <button id="btn-swap-tex" type="button" class="btn btn-outline-light btn-sm w-100">Swap colour / texture</button>
+        </section>
+      </aside>
+    </div>
+
+    <!-- ===== Feedback (uses the PHP/SQLite API) ===== -->
+    <section id="feedback" class="rv-panel mt-4" aria-labelledby="feedback-heading">
+      <h2 id="feedback-heading" class="rv-panel-title">Tester feedback</h2>
+      <form id="feedback-form" class="row g-2 align-items-end">
+        <div class="col-12 col-md-3">
+          <label for="fb-name" class="form-label small mb-1">Name</label>
+          <input id="fb-name" class="form-control form-control-sm" required maxlength="60" autocomplete="name" />
+        </div>
+        <div class="col-12 col-md-6">
+          <label for="fb-msg" class="form-label small mb-1">Comment</label>
+          <input id="fb-msg" class="form-control form-control-sm" required maxlength="240" />
+        </div>
+        <div class="col-6 col-md-2">
+          <label for="fb-rating" class="form-label small mb-1">Rating (1–5)</label>
+          <input id="fb-rating" type="number" min="1" max="5" value="5" class="form-control form-control-sm" required />
+        </div>
+        <div class="col-6 col-md-1">
+          <button type="submit" class="btn btn-primary btn-sm w-100">Send</button>
+        </div>
+      </form>
+      <ul id="fb-list" class="rv-feedback list-unstyled mt-3 mb-0" aria-live="polite"></ul>
+    </section>
+
+  </main>
+
+  <!-- ========================== FOOTER ========================== -->
+  <footer class="rv-footer">
+    <div class="container-fluid py-3 small d-flex justify-content-between flex-wrap">
+      <span>&copy; 2026 RetroVerse 3D — L6 Assignment</span>
+      <span><a href="references.html">References</a> · <a href="sitemap.html">Site map</a> · <a href="submission.html">Submission</a></span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <!-- ?v= bumps every visible JS edit to bust browser ES-module cache -->
+  <script type="module" src="js/app.js?v=7"></script>
+</body>
+</html>

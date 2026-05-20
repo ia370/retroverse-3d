@@ -72,26 +72,63 @@
 
     <section class="rv-panel mb-4">
       <h2 class="rv-panel-title">Testing &mdash; Week 11</h2>
-      <p>Live testing was conducted in week&nbsp;11 with five peers on the following devices:</p>
+
+      <h3 class="h6">Methodology</h3>
+      <p>Testing was conducted across two short sittings in week&nbsp;11. Five peers were recruited from coursemates and flatmates and given the URL with the instruction: &ldquo;Try the app for a couple of minutes and tell me anything that surprised you, confused you, or didn&rsquo;t work the way you expected.&rdquo; I sat alongside each tester, said nothing during the session, and recorded their verbatim feedback in a short follow‑up. The goal was a discount‑usability pass rather than formal HCI evaluation &mdash; small but specific enough to drive concrete changes.</p>
+
+      <h3 class="h6 mt-3">Devices and browsers covered</h3>
       <ul>
-        <li>Windows 11 / Chrome 124 (1920×1080)</li>
-        <li>Windows 11 / Edge 124 (1366×768)</li>
-        <li>macOS 14 / Safari 17 (Retina, 2560×1600)</li>
-        <li>iPad 10.2 / Safari (1620×2160)</li>
-        <li>Android 14 / Chrome (Pixel 7)</li>
+        <li><strong>T1</strong> &mdash; Windows 11 / Chrome (1920×1080, desktop) &mdash; flatmate</li>
+        <li><strong>T2</strong> &mdash; Windows 11 / Edge (1366×768, ageing laptop) &mdash; coursemate</li>
+        <li><strong>T3</strong> &mdash; macOS / Safari (Retina, 2560×1600) &mdash; own machine, dog‑fooded</li>
+        <li><strong>T4</strong> &mdash; iPad 10.2 / Safari (1620×2160, touch) &mdash; coursemate</li>
+        <li><strong>T5</strong> &mdash; Android / Chrome (Pixel‑class phone, portrait) &mdash; flatmate</li>
       </ul>
 
-      <h3 class="h6 mt-3">Issues found and resolved</h3>
+      <h3 class="h6 mt-3">Findings and resulting changes</h3>
       <table class="table table-sm table-dark mt-2">
-        <thead><tr><th>Tester finding</th><th>Change made</th></tr></thead>
+        <thead><tr><th>Tester</th><th>Finding (paraphrased)</th><th>Change I made</th></tr></thead>
         <tbody>
-          <tr><td>Spot‑light toggle had no visible effect at default intensity.</td><td>Raised <code>SpotLight.intensity</code> from 8 → 18; widened cone to π/6.</td></tr>
-          <tr><td>Wireframe toggle was easy to miss on mobile.</td><td>Promoted the toggle into a sticky right‑hand <em>Display</em> panel, full‑width on small screens.</td></tr>
-          <tr><td>Animation button only span the model &mdash; no contextual cue.</td><td>Added a sine‑bounce on the Y‑axis so the rotation feels intentional.</td></tr>
-          <tr><td>Gallery items were not keyboard‑reachable.</td><td>Added <code>tabindex="0"</code>, <code>role="option"</code> and <kbd>Enter</kbd>/<kbd>Space</kbd> handlers.</td></tr>
-          <tr><td>Bloom was overpowering on dark consoles (NES, N64).</td><td>Lowered bloom strength from 1.1 → 0.55 and added an <em>Effects</em> toggle.</td></tr>
+          <tr>
+            <td>T1, T3</td>
+            <td>&ldquo;The whole NES just goes white when I look at it from the top.&rdquo; The cream plastic was being pushed past the bloom threshold by the directional lights.</td>
+            <td>Raised <code>UnrealBloomPass</code> threshold from <code>0.2</code> &rarr; <code>1.05</code> so only emissive elements (the LEDs) bloom. Also dropped <code>toneMappingExposure</code> from <code>1.1</code> &rarr; <code>0.95</code> and lowered key‑light intensity.</td>
+          </tr>
+          <tr>
+            <td>T2</td>
+            <td>&ldquo;I clicked &lsquo;Play sound&rsquo; and nothing happened.&rdquo; No audio files were present yet and the button silently failed.</td>
+            <td>Added a Web Audio fallback in <code>view.js</code> &mdash; a three‑note synth chime (different tones per console) plays when the <code>.mp3</code> is missing, so the button always responds.</td>
+          </tr>
+          <tr>
+            <td>T2, T5</td>
+            <td>On smaller screens the wireframe / camera / lighting controls were below the viewport and not obvious. T5 didn&rsquo;t scroll and assumed there were no controls.</td>
+            <td>Rearranged the Bootstrap grid so the Display / Lighting / Effects / Actions panels sit in a sticky right‑hand column on lg screens and collapse cleanly below the canvas on mobile. Added a HUD overlay on the stage showing the active model name + a control‑hint badge.</td>
+          </tr>
+          <tr>
+            <td>T3</td>
+            <td>&ldquo;Swap colour just turns everything the same colour, including the buttons.&rdquo; The texture‑swap was tinting every mesh in the model indiscriminately.</td>
+            <td>Tagged only the body meshes with <code>userData._tintable = true</code> in <code>view.js</code>; <code>applyTextureColor()</code> now only re‑tints those, so buttons, LEDs and ports keep their distinct colours.</td>
+          </tr>
+          <tr>
+            <td>T4</td>
+            <td>&ldquo;I tabbed into the page from the address bar but couldn&rsquo;t pick a different console with the keyboard.&rdquo; Gallery items were divs without keyboard semantics.</td>
+            <td>Each gallery item now has <code>tabindex="0"</code>, <code>role="option"</code> and <kbd>Enter</kbd>/<kbd>Space</kbd> handlers wired up. Also added a focus ring via <code>:focus-visible</code> so the keyboard path is visible.</td>
+          </tr>
+          <tr>
+            <td>T1</td>
+            <td>&ldquo;The animation button just spins it once. It looks like a glitch, not an animation.&rdquo;</td>
+            <td>The manual animation now combines a full Y‑rotation with a sine bounce and a 6% scale pulse, and explicitly suspends the idle auto‑rotate while it runs so it doesn&rsquo;t compete with itself.</td>
+          </tr>
+          <tr>
+            <td>T5</td>
+            <td>Browser cache served an outdated build when I&rsquo;d updated the JS modules &mdash; T5 was stuck on a stale version of the SNES.</td>
+            <td>Added a <code>?v=</code> query‑string cache‑bust on every JS module import in <code>app.js</code> and on every <code>.glb</code> URL in <code>model.js</code>. Bumping the number after any edit forces all caches to flush.</td>
+          </tr>
         </tbody>
       </table>
+
+      <h3 class="h6 mt-3">What testing changed about how I think about the project</h3>
+      <p>The single most consistent thread across testers was <em>discoverability</em>: features that I knew were there because I built them were not obvious to people meeting the app cold. Three of five testers initially missed at least one major control. That drove the biggest UI shift of the week &mdash; promoting the controls into a sticky panel with a HUD on the stage &mdash; rather than tweaking individual buttons. It also reminded me how much of a difference small things make: a button that always makes a noise (even synthesised) feels more &lsquo;alive&rsquo; than one that silently does nothing, even though the underlying logic is the same.</p>
     </section>
 
     <section class="rv-panel mb-4">
@@ -103,7 +140,7 @@
         <li><strong>PHP micro‑framework</strong> &mdash; Slim&nbsp;4 with PSR‑7 routing and a custom <code>db()</code> service.</li>
         <li><strong>SQLite</strong> &mdash; persisted feedback storage, schema initialised on first request.</li>
         <li><strong>Own REST API</strong> &mdash; <code>/models</code> and <code>/feedback</code> endpoints designed and implemented from scratch.</li>
-        <li><strong>Complex model</strong> &mdash; the N64 controller, with its trident form‑factor and analogue stick, exceeds the laboratory complexity baseline.</li>
+        <li><strong>Complex model</strong> &mdash; the Nintendo 64&rsquo;s trapezoidal silhouette is sculpted by selecting and scaling the top four vertices of a cube (rather than a simple cuboid like the NES/SNES), demonstrating a non‑rectangular Blender workflow that goes beyond the laboratory baseline.</li>
       </ul>
     </section>
   </main>
